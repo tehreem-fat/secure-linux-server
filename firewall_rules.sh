@@ -5,7 +5,7 @@
 sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 
 # Allow trusted IP (replace with your own trusted IP)
-sudo iptables -A INPUT -s 10.0.2.15 -j ACCEPT
+sudo iptables -A INPUT -s <YOUR_TRUSTED_IP> -j ACCEPT
 
 # Drop all other incoming traffic
 sudo iptables -A INPUT -j DROP
