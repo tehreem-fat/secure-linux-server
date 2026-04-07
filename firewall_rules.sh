@@ -1,13 +1,25 @@
 #!/bin/bash
-# firewall_rules.sh - Basic iptables rules for SSH security
 
-# Allow SSH only on port 22
-sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+echo "[+] Applying secure firewall rules..."
 
-# Allow trusted IP (replace with your own trusted IP)
-sudo iptables -A INPUT -s <YOUR_TRUSTED_IP> -j ACCEPT
+# Flush existing rules
+iptables -F
 
-# Drop all other incoming traffic
-sudo iptables -A INPUT -j DROP
+# Default policies
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT ACCEPT
 
-echo "✅ Firewall rules applied successfully"
+# Allow loopback
+iptables -A INPUT -i lo -j ACCEPT
+
+# Allow established connections
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+# Allow SSH (limit brute force)
+iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -m limit --limit 3/min -j ACCEPT
+
+# Log dropped packets
+iptables -A INPUT -j LOG --log-prefix "DROP: "
+
+echo "[+] Firewall hardened successfully"
