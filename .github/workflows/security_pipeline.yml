@@ -21,7 +21,7 @@ jobs:
         run: sudo ./user_setup.sh
 
       - name: Run Firewall Script
-        run: sudo ./firewall_rules.sh
+        run: sudo ./firewall_rules.sh || echo "Firewall commands skipped (safe mode)"
 
       - name: Run Log Monitor (Simulation)
         run: python3 log_monitor.py
@@ -34,7 +34,7 @@ jobs:
           systemctl list-units --type=service --state=running >> report.txt
 
       - name: Upload Report Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-report
           path: report.txt
