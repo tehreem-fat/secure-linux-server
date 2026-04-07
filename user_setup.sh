@@ -1,13 +1,14 @@
 #!/bin/bash
-# user_setup.sh - Create a new secure user
 
-# Create user with home directory and bash shell
-sudo useradd -m -s /bin/bash devuser
+read -p "Enter username: " USERNAME
 
-# Set password for the user
-echo "devuser:StrongPassword123" | sudo chpasswd
+# Create user
+sudo useradd -m -s /bin/bash "$USERNAME"
 
-# Add user to sudo group
-sudo usermod -aG sudo devuser
+# Lock password login (force SSH key usage)
+sudo passwd -l "$USERNAME"
 
-echo "✅ User 'devuser' created with sudo access"
+# Add to sudo group
+sudo usermod -aG sudo "$USERNAME"
+
+echo "[+] User $USERNAME created with sudo access (password login disabled)"
