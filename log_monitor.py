@@ -1,10 +1,21 @@
-# log_monitor.py - Detect failed SSH login attempts
-
 import re
+from collections import defaultdict
 
-with open("/var/log/secure", "r") as f:
+LOG_FILE = "/var/log/auth.log"  # Ubuntu (use /var/log/secure for RHEL)
+
+failed_attempts = defaultdict(int)
+
+with open(LOG_FILE, "r") as f:
     for line in f:
         if "Failed password" in line:
-            ip = re.findall(r'from (\d+\.\d+\.\d+\.\d+)', line)
-            if ip:
-                print(f"⚠️ Suspicious login attempt from {ip[0]}")
+            ip_match = re.search(r'from (\d+\.\d+\.\d+\.\d+)', line)
+            if ip_match:
+                ip = ip_match.group(1)
+                failed_attempts[ip] += 1
+
+# Threshold detection
+THRESHOLD = 5
+
+for ip, count in failed_attempts.items():
+    if count >= THRESHOLD:
+        print(f"[ALERT] Possible brute-force attack from {ip} ({count} attempts)")
