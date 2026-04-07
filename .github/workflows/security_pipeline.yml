@@ -1,0 +1,40 @@
+name: Linux Security Hardening Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set Executable Permissions
+        run: chmod +x *.sh
+
+      - name: Run User Setup Script
+        run: sudo ./user_setup.sh
+
+      - name: Run Firewall Script
+        run: sudo ./firewall_rules.sh
+
+      - name: Run Log Monitor (Simulation)
+        run: python3 log_monitor.py
+
+      - name: Generate Security Report
+        run: |
+          echo "Security Report - $(date)" > report.txt
+          ss -tuln >> report.txt
+          last -a | head >> report.txt
+          systemctl list-units --type=service --state=running >> report.txt
+
+      - name: Upload Report Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: report.txt
