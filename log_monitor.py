@@ -19,3 +19,14 @@ THRESHOLD = 5
 for ip, count in failed_attempts.items():
     if count >= THRESHOLD:
         print(f"[ALERT] Possible brute-force attack from {ip} ({count} attempts)")
+
+import os
+
+def block_ip(ip):
+    os.system(f"sudo iptables -A INPUT -s {ip} -j DROP")
+    print(f"[ACTION] Blocked IP: {ip}")
+
+for ip, count in failed_attempts.items():
+    if count >= THRESHOLD:
+        print(f"[ALERT] Brute-force attack from {ip}")
+        block_ip(ip)
